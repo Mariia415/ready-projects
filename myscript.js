@@ -1,91 +1,104 @@
-const numberButtons = document.querySelectorAll('[data-number]');
-const operationButtons = document.querySelectorAll('[data-operation]');
-//const equalsButton = document.querySelector('[data-equals]');
-const deleteButton = document.querySelector('[data-delete]');
-const allClearButton = document.querySelector('[data-all-clear]');
-//const previousOperandTextElement = document.querySelector('[data-previous-operand]');
-//const currentOperandTextElement = document.querySelector('[data-current-operand]');
-let display = document.querySelector('[display]');
-let memoryCurrentNumber = '0';
-let memoryNewNumber = false;
-let memoryPendingOperation = '';
+const numberButton = document.querySelectorAll('[data-number]');
+const operationButton = document.querySelectorAll('[data-operation]');
+const clearButton = document.querySelectorAll('[data-clear]');
+const resultButton = document.querySelector('[data-result]');
+const decimalButton = document.querySelector('[data-decimal]');
+const display = document.querySelector('[display]');
+let memoCurrentNumber = 0;
+let memoNewNumber = false;
+let memoPendingOperation = '';
 
 
-for(let i = 0; i < numberButtons.length; i++){
-    let numbers = numberButtons[i];
-    numbers.addEventListener('click', function(e){
+
+
+for (let i = 0; i < numberButton.length; i++) {
+    const number = numberButton[i];
+    number.addEventListener('click', function (e) {
         pressNumber(e.target.innerText);
     });
 };
 
-for(let i = 0; i < operationButtons.length; i++){
-    let operations = operationButtons[i];
-    operations.addEventListener('click', function(e){
+for (let i = 0; i < operationButton.length; i++) {
+    const operation = operationButton[i];
+    operation.addEventListener('click', function(e) {
         pressOperation(e.target.innerText);
+    });
+    
+};
+
+for (let i = 0; i < clearButton.length; i++) {
+    const clear = clearButton[i];
+    clear.addEventListener('click', function(e) {
+        pressClear(e.target.innerText);
     });
 };
 
-equalsButton.addEventListener('click', pressEqual);
-    
-deleteButton.addEventListener('click', pressDelete);
-
-allClearButton.addEventListener('click', pressClear);
-
+decimalButton.addEventListener('click', pressDecimal);
 
 
 function pressNumber(num) {
-    if(memoryNewNumber){
-       display.value = num;
-       memoryNewNumber = false;
-    }else{
-        if(display.value === ''){
+    if (memoNewNumber) {
+         display.value = num;
+         memoNewNumber = false;
+    } else {
+        if (display.value === '0') {
             display.value = num;
-        }else{
+        } else {
             display.value += num; 
-        };
+        }; 
     };
 };
 
-function pressOperation(action) {
-    const localOperationMemory = display.value;
+function pressOperation(symb) {
+    let localOperationMemory = display.value;
 
-    if(memoryNewNumber && memoryPendingOperation !== '='){
-        display.value = memoryCurrentNumber;
-    }else{
-        memoryNewNumber = true;
-        switch(memoryPendingOperation){
-            case '+':
-                memoryCurrentNumber += parseFloat(localOperationMemory);
-                break;
-
-            case '-':
-                memoryCurrentNumber -= parseFloat(localOperationMemory);
-                break;
-                
-            case '*':
-                memoryCurrentNumber *= parseFloat(localOperationMemory);
-                break;
-                
-            case '÷':
-                memoryCurrentNumber /= parseFloat(localOperationMemory);
-                break;    
-            case '=':
-                memoryCurrentNumber = parseFloat(localOperationMemory);    
+    if (memoNewNumber && memoPendingOperation !== '=') {
+        display.value = memoCurrentNumber;
+    } else {
+        memoNewNumber = true;
+        if (memoPendingOperation === '+') {
+            memoCurrentNumber += parseFloat(localOperationMemory);
+        } else if(memoPendingOperation === '-'){
+            memoCurrentNumber -= parseFloat(localOperationMemory);
+        } else if(memoPendingOperation === '*'){
+            memoCurrentNumber *= parseFloat(localOperationMemory);
+        } else if(memoPendingOperation === '÷'){
+            memoCurrentNumber /= parseFloat(localOperationMemory);
+        } else {
+            memoCurrentNumber = parseFloat(localOperationMemory);
         };
-        display.value = memoryCurrentNumber;
-        memoryPendingOperation = action;
+        display.value = memoCurrentNumber;
+        memoPendingOperation = symb;
+    }
+};
+
+function pressClear(id) {
+    if (id === 'DEL') {
+        let string = display.value.toString();
+        if(string.length === 1){
+            display.value = '0';
+        }else{
+            display.value = string.slice(0, -1);
+        }
+    } else if(id === 'AC'){
+        display.value = '0';
+        memoNewNumber = true;
+        memoCurrentNumber = '0';
+        memoPendingOperation = '';
     };
-    console.log(`Click operation button ${symbol}`);
 };
 
-function pressEqual(params) {
-    console.log('Click equals button!');
+function pressDecimal(params) {
+    let localDecimalMemory = display.value;
+
+    if(memoNewNumber){
+        localDecimalMemory = '0.';
+        memoNewNumber = false;
+    } else {
+        if(localDecimalMemory.indexOf('.') === -1){
+            localDecimalMemory += '.';
+        };
+    };
+    display.value = localDecimalMemory;
 };
 
-function pressDelete(params) {
-    console.log('Click delete button!');
-};
-
-function pressClear (params) {
-    console.log('Click clear all button!');
-};
